@@ -14,7 +14,7 @@ let package = Package(
     targets: [
         .target(
             name: "Cronista",
-            path: "Sources/Cronista"
+            resources: [.process("LogFilter/rules.json")]
         ),
         .testTarget(
             name: "CronistaTests",
