@@ -81,4 +81,58 @@ final class CronistaTests: XCTestCase {
         """
         )
     }
+
+    func testSecretIsRedacted() throws {
+        let sut = Cronista(
+            module: "test_module",
+            category: "test_category",
+            isFileLoggingEnabled: true,
+            fileDate: Date(timeIntervalSince1970: 1),
+            lineDate: { Date(timeIntervalSince1970: 1) }
+        )
+        let message1 = "-----BEGIN RSA PRIVATE KEY-----adsflkjasdjkldafsjk-----END RSA PRIVATE KEY----- should not ever be in a log"
+        let message11 = """
+        Here is a private key:
+        -----BEGIN RSA PRIVATE KEY-----
+        MIIEpQIBAAKCAQEA...
+        -----END RSA PRIVATE KEY-----
+        And some other text.
+        """
+        sut.debug(message1)
+        sut.info(message11)
+
+        let message2 = "Session token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM1BHTY3ODkwIiwibmFtZasdffsd6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c should not ever be in a log"
+        sut.debug(message2)
+
+        let message3 = "Gitlab token: glpat-1239908108359_jnlk"
+        sut.error(message3)
+
+        let fileContents = try String(contentsOf: sut.logFileURL)
+
+        XCTAssertEqual(fileContents, """
+                                    [1970-01-01T00:00:01.000] [REDACTED] should not ever be in a log
+                                    [1970-01-01T00:00:01.000] Here is a private key:
+                                    [REDACTED]
+                                    And some other text.
+                                    [1970-01-01T00:00:01.000] Session token: [REDACTED] should not ever be in a log
+                                    [1970-01-01T00:00:01.000] Gitlab token: [REDACTED]
+                                    
+                                    """
+        )
+    }
+
+    func testNoTerminateLineParameterWorks() throws {
+        let sut = Cronista(
+            module: "test_module",
+            category: "test_category",
+            isFileLoggingEnabled: true,
+            fileDate: Date(timeIntervalSince1970: 1),
+            lineDate: { Date(timeIntervalSince1970: 1) }
+        )
+
+        let message = "I don't want a new line for some reason"
+        sut.info(message, terminateLine: false)
+        let fileContents = try String(contentsOf: sut.logFileURL)
+        XCTAssertEqual("[1970-01-01T00:00:01.000] I don't want a new line for some reason", fileContents)
+    }
 }

@@ -7,7 +7,9 @@ public final class Cronista {
         module: "Cronista",
         category: "Default"
     )
-    
+
+    fileprivate let filter = LogFilter()
+
     private let module: String
     private let category: String
     
@@ -52,31 +54,37 @@ public final class Cronista {
     }
     
     public func info(_ message: String, terminateLine: Bool = true) {
+        let message = filter.sanitize(message)
         handle(message, color: .info, terminateLine: terminateLine)
         logger.info("\(message)")
     }
     
     public func success(_ message: String, terminateLine: Bool = true) {
+        let message = filter.sanitize(message)
         handle(message, color: .success, terminateLine: terminateLine)
         logger.info("\(message)")
     }
     
     public func debug(_ message: String, terminateLine: Bool = true) {
+        let message = filter.sanitize(message)
         handle(message, color: .info, terminateLine: terminateLine)
         logger.debug("\(message)")
     }
     
     public func warning(_ message: String, terminateLine: Bool = true) {
+        let message = filter.sanitize(message)
         handle(message, color: .warning, terminateLine: terminateLine)
         logger.warning("\(message)")
     }
     
     public func fault(_ message: String, terminateLine: Bool = true) {
+        let message = filter.sanitize(message)
         handle(message, color: .error, terminateLine: terminateLine)
         logger.fault("\(message)")
     }
     
     public func error(_ message: String, terminateLine: Bool = true) {
+        let message = filter.sanitize(message)
         handle(message, color: .error, terminateLine: terminateLine)
         logger.error("\(message)")
     }
@@ -174,7 +182,7 @@ private extension Cronista {
         )
 
         if isFileLoggingEnabled {
-            write(line: "[\(timestamp)] " + message + "\n")
+            write(line: "[\(timestamp)] " + message + (terminateLine ? "\n" : ""))
         }
 
         handler?(message)
