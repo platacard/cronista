@@ -12,3 +12,13 @@ logger.fault("fault")
 logger.error("some error message")
 ...
 ```
+
+Secret filtering is made possible by https://github.com/mazen160/secrets-patterns-db
+
+## Installation
+
+```swift
+dependencies: [
+    .package(url: "https://github.com/plataformatec/cronista.git", from: "1.0.2")
+]
+```

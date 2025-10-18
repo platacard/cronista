@@ -8,7 +8,7 @@ public final class Cronista {
         category: "Default"
     )
 
-    fileprivate let filter = LogFilter()
+    private let filter = LogFilter()
 
     private let module: String
     private let category: String
