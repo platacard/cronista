@@ -173,7 +173,7 @@ extension Cronista {
 private extension Cronista {
 
     func handle(_ message: String, color: LogColor, terminateLine: Bool) {
-        print(color.wrapped("[\(self.module)/\(self.category)] \(message)"), terminator: terminateLine ? "\n" : " ")
+        print(color.wrapped("\(message)"), terminator: terminateLine ? "\n" : " ")
 
         let timestamp = lineDate().ISO8601Format(
             .iso8601(
@@ -185,7 +185,7 @@ private extension Cronista {
         )
 
         if isFileLoggingEnabled {
-            write(line: "[\(timestamp)] " + message + (terminateLine ? "\n" : ""))
+            write(line: "[\(timestamp)] " + "[\(module)/\(category)] " + message + (terminateLine ? "\n" : ""))
         }
 
         handler?(message)

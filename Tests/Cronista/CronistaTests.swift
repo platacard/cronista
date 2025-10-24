@@ -21,7 +21,7 @@ final class CronistaTests: XCTestCase {
         )
 
         let message = "The error has just happened"
-        let timestamp = "[1970-01-01T00:00:01.000]"
+        let prefix = "[1970-01-01T00:00:01.000] [test_module/test_category]"
         sut.error(message)
 
         var isDirectory: ObjCBool = false
@@ -29,7 +29,7 @@ final class CronistaTests: XCTestCase {
 
         XCTAssertTrue(FileManager.default.fileExists(atPath: sut.logFileURL.path(), isDirectory: &isDirectory), "File should exist")
         XCTAssertFalse(isDirectory.boolValue, "The last component of \(sut.logFileURL.path()) should be a file without extension")
-        XCTAssertEqual(fileContents, "\(timestamp) \(message)\n")
+        XCTAssertEqual(fileContents, "\(prefix) \(message)\n")
     }
 
     func testLogFilePathIsCorrect() {
@@ -75,8 +75,8 @@ final class CronistaTests: XCTestCase {
         XCTAssertEqual(files.count, 1)
         let fileContents = try String(contentsOf: sut1.logFileURL)
         XCTAssertEqual(fileContents, """
-        [1970-01-01T00:00:01.000] Error has just happened
-        [1970-01-01T00:00:10.000] Error has just happened again
+        [1970-01-01T00:00:01.000] [test_module/test_category] Error has just happened
+        [1970-01-01T00:00:10.000] [test_module_1/test_category_1] Error has just happened again
         
         """
         )
@@ -110,12 +110,12 @@ final class CronistaTests: XCTestCase {
         let fileContents = try String(contentsOf: sut.logFileURL)
 
         XCTAssertEqual(fileContents, """
-                                    [1970-01-01T00:00:01.000] [REDACTED] should not ever be in a log
-                                    [1970-01-01T00:00:01.000] Here is a private key:
+                                    [1970-01-01T00:00:01.000] [test_module/test_category] [REDACTED] should not ever be in a log
+                                    [1970-01-01T00:00:01.000] [test_module/test_category] Here is a private key:
                                     [REDACTED]
                                     And some other text.
-                                    [1970-01-01T00:00:01.000] Session token: [REDACTED] should not ever be in a log
-                                    [1970-01-01T00:00:01.000] Gitlab token: [REDACTED]
+                                    [1970-01-01T00:00:01.000] [test_module/test_category] Session token: [REDACTED] should not ever be in a log
+                                    [1970-01-01T00:00:01.000] [test_module/test_category] Gitlab token: [REDACTED]
                                     
                                     """
         )
@@ -133,7 +133,7 @@ final class CronistaTests: XCTestCase {
         let message = "I don't want a new line for some reason"
         sut.info(message, terminateLine: false)
         let fileContents = try String(contentsOf: sut.logFileURL)
-        XCTAssertEqual("[1970-01-01T00:00:01.000] I don't want a new line for some reason", fileContents)
+        XCTAssertEqual("[1970-01-01T00:00:01.000] [test_module/test_category] I don't want a new line for some reason", fileContents)
     }
 
     func testDisabledFilterDoesNotFilterSecrets() throws {
@@ -151,7 +151,7 @@ final class CronistaTests: XCTestCase {
         let fileContents = try String(contentsOf: sut.logFileURL)
 
         XCTAssertEqual(fileContents, """
-                                    [1970-01-01T00:00:01.000] Gitlab token: glpat-1239908108359_jnlk
+                                    [1970-01-01T00:00:01.000] [test_module/test_category] Gitlab token: glpat-1239908108359_jnlk
                                     
                                     """
         )
