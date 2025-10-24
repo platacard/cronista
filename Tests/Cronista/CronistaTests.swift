@@ -135,4 +135,25 @@ final class CronistaTests: XCTestCase {
         let fileContents = try String(contentsOf: sut.logFileURL)
         XCTAssertEqual("[1970-01-01T00:00:01.000] I don't want a new line for some reason", fileContents)
     }
+
+    func testDisabledFilterDoesNotFilterSecrets() throws {
+        let sut = Cronista(
+            module: "test_module",
+            category: "test_category",
+            isFileLoggingEnabled: true,
+            isSecretFilterEnabled: false,
+            fileDate: Date(timeIntervalSince1970: 1),
+            lineDate: { Date(timeIntervalSince1970: 1) }
+        )
+        let message = "Gitlab token: glpat-1239908108359_jnlk"
+        sut.info(message)
+
+        let fileContents = try String(contentsOf: sut.logFileURL)
+
+        XCTAssertEqual(fileContents, """
+                                    [1970-01-01T00:00:01.000] Gitlab token: glpat-1239908108359_jnlk
+                                    
+                                    """
+        )
+    }
 }
