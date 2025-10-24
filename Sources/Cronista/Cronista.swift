@@ -16,6 +16,7 @@ public final class Cronista {
     private let logger: Logger
     private let fileManager = FileManager.default
     private let isFileLoggingEnabled: Bool
+    private let isSecretFilterEnabled: Bool
     private let fileDate: Date
     private let lineDate: () -> Date
 
@@ -38,6 +39,7 @@ public final class Cronista {
         module: String,
         category: String,
         isFileLoggingEnabled: Bool = false,
+        isSecretFilterEnabled: Bool = true,
         fileDate: Date = .now,
         lineDate: @escaping () -> Date = { .now }
     ) {
@@ -45,6 +47,7 @@ public final class Cronista {
         self.category = category
         self.logger = Logger(subsystem: module, category: category)
         self.isFileLoggingEnabled = isFileLoggingEnabled
+        self.isSecretFilterEnabled = isSecretFilterEnabled
         self.fileDate = fileDate
         self.lineDate = lineDate
 
@@ -54,37 +57,37 @@ public final class Cronista {
     }
     
     public func info(_ message: String, terminateLine: Bool = true) {
-        let message = filter.sanitize(message)
+        let message = isSecretFilterEnabled ? filter.sanitize(message) : message
         handle(message, color: .info, terminateLine: terminateLine)
         logger.info("\(message)")
     }
     
     public func success(_ message: String, terminateLine: Bool = true) {
-        let message = filter.sanitize(message)
+        let message = isSecretFilterEnabled ? filter.sanitize(message) : message
         handle(message, color: .success, terminateLine: terminateLine)
         logger.info("\(message)")
     }
     
     public func debug(_ message: String, terminateLine: Bool = true) {
-        let message = filter.sanitize(message)
+        let message = isSecretFilterEnabled ? filter.sanitize(message) : message
         handle(message, color: .info, terminateLine: terminateLine)
         logger.debug("\(message)")
     }
     
     public func warning(_ message: String, terminateLine: Bool = true) {
-        let message = filter.sanitize(message)
+        let message = isSecretFilterEnabled ? filter.sanitize(message) : message
         handle(message, color: .warning, terminateLine: terminateLine)
         logger.warning("\(message)")
     }
     
     public func fault(_ message: String, terminateLine: Bool = true) {
-        let message = filter.sanitize(message)
+        let message = isSecretFilterEnabled ? filter.sanitize(message) : message
         handle(message, color: .error, terminateLine: terminateLine)
         logger.fault("\(message)")
     }
     
     public func error(_ message: String, terminateLine: Bool = true) {
-        let message = filter.sanitize(message)
+        let message = isSecretFilterEnabled ? filter.sanitize(message) : message
         handle(message, color: .error, terminateLine: terminateLine)
         logger.error("\(message)")
     }

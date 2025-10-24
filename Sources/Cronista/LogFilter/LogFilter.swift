@@ -23,7 +23,6 @@ class LogFilter {
                     compiledPatterns.append(regex)
                 }
             }
-            print("✅ Loaded \(compiledPatterns.count) regex patterns using RegexBuilder API compatibility layer.")
         } catch {
             print("❌ Failed to load or decode regex rules: \(error)")
         }
