@@ -33,13 +33,15 @@ public final class Cronista {
     /// - Parameters:
     ///   - module: submodule, e.g. `Core`
     ///   - category: unit of logic or class, e.g. `TodoChecker`, `API generation`
-    ///   - isFileLoggingEnabled: write to file
-    ///   - logDate: day component to write logs to. Used if `isFileLoggingEnabled == true` to separate different days
+    ///   - isFileLoggingEnabled: write to file. Disabled by default
+    ///   - isSecretFilterEnabled: filter known secrets. Disabled by default
+    ///   - fileDate: Timestamp for a file log
+    ///   - lineDate: Timestamp for a line in a file log
     public init(
         module: String,
         category: String,
         isFileLoggingEnabled: Bool = false,
-        isSecretFilterEnabled: Bool = true,
+        isSecretFilterEnabled: Bool = false,
         fileDate: Date = .now,
         lineDate: @escaping () -> Date = { .now }
     ) {
