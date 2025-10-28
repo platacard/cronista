@@ -87,6 +87,7 @@ final class CronistaTests: XCTestCase {
             module: "test_module",
             category: "test_category",
             isFileLoggingEnabled: true,
+            isSecretFilterEnabled: true,
             fileDate: Date(timeIntervalSince1970: 1),
             lineDate: { Date(timeIntervalSince1970: 1) }
         )
@@ -136,12 +137,11 @@ final class CronistaTests: XCTestCase {
         XCTAssertEqual("[1970-01-01T00:00:01.000] [test_module/test_category] I don't want a new line for some reason", fileContents)
     }
 
-    func testDisabledFilterDoesNotFilterSecrets() throws {
+    func testDisabledByDefaultFilterDoesNotFilterSecrets() throws {
         let sut = Cronista(
             module: "test_module",
             category: "test_category",
             isFileLoggingEnabled: true,
-            isSecretFilterEnabled: false,
             fileDate: Date(timeIntervalSince1970: 1),
             lineDate: { Date(timeIntervalSince1970: 1) }
         )
