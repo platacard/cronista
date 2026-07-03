@@ -1,12 +1,40 @@
 import Foundation
 import OSLog
 
+/// Receives every console-bound log message instead of Cronista's own
+/// `print`. os_log, file logging and the async stream are unaffected.
+/// Lets a host CLI route or buffer console output (e.g. while a terminal
+/// spinner owns the current line).
+public protocol CronistaConsoleSink: AnyObject, Sendable {
+    func write(
+        _ message: String,
+        level: Cronista.Level,
+        module: String,
+        category: String,
+        terminateLine: Bool
+    )
+}
+
 public final class Cronista {
     nonisolated(unsafe)
     public static let `default` = Cronista(
         module: "Cronista",
         category: "Default"
     )
+
+    /// When set, console output of ALL Cronista instances is redirected to
+    /// the sink instead of being printed to stdout.
+    nonisolated(unsafe)
+    public static var consoleSink: CronistaConsoleSink?
+
+    public enum Level: Sendable {
+        case info
+        case success
+        case debug
+        case warning
+        case error
+        case fault
+    }
 
     private let filter = LogFilter()
 
@@ -60,37 +88,37 @@ public final class Cronista {
     
     public func info(_ message: String, terminateLine: Bool = true) {
         let message = isSecretFilterEnabled ? filter.sanitize(message) : message
-        handle(message, color: .info, terminateLine: terminateLine)
+        handle(message, level: .info, terminateLine: terminateLine)
         logger.info("\(message)")
     }
-    
+
     public func success(_ message: String, terminateLine: Bool = true) {
         let message = isSecretFilterEnabled ? filter.sanitize(message) : message
-        handle(message, color: .success, terminateLine: terminateLine)
+        handle(message, level: .success, terminateLine: terminateLine)
         logger.info("\(message)")
     }
-    
+
     public func debug(_ message: String, terminateLine: Bool = true) {
         let message = isSecretFilterEnabled ? filter.sanitize(message) : message
-        handle(message, color: .info, terminateLine: terminateLine)
+        handle(message, level: .debug, terminateLine: terminateLine)
         logger.debug("\(message)")
     }
-    
+
     public func warning(_ message: String, terminateLine: Bool = true) {
         let message = isSecretFilterEnabled ? filter.sanitize(message) : message
-        handle(message, color: .warning, terminateLine: terminateLine)
+        handle(message, level: .warning, terminateLine: terminateLine)
         logger.warning("\(message)")
     }
-    
+
     public func fault(_ message: String, terminateLine: Bool = true) {
         let message = isSecretFilterEnabled ? filter.sanitize(message) : message
-        handle(message, color: .error, terminateLine: terminateLine)
+        handle(message, level: .fault, terminateLine: terminateLine)
         logger.fault("\(message)")
     }
-    
+
     public func error(_ message: String, terminateLine: Bool = true) {
         let message = isSecretFilterEnabled ? filter.sanitize(message) : message
-        handle(message, color: .error, terminateLine: terminateLine)
+        handle(message, level: .error, terminateLine: terminateLine)
         logger.error("\(message)")
     }
     
@@ -174,8 +202,12 @@ extension Cronista {
 
 private extension Cronista {
 
-    func handle(_ message: String, color: LogColor, terminateLine: Bool) {
-        print(color.wrapped("\(message)"), terminator: terminateLine ? "\n" : " ")
+    func handle(_ message: String, level: Cronista.Level, terminateLine: Bool) {
+        if let sink = Cronista.consoleSink {
+            sink.write(message, level: level, module: module, category: category, terminateLine: terminateLine)
+        } else {
+            print(level.color.wrapped("\(message)"), terminator: terminateLine ? "\n" : " ")
+        }
 
         let timestamp = lineDate().ISO8601Format(
             .iso8601(
@@ -203,8 +235,19 @@ private enum LogColor: String {
     case success = "[0;32m"
     case error = "[0;31m"
     case reset = "[0;0m"
-    
+
     func wrapped(_ message: String) -> String {
         "\u{001B}\(self.rawValue)\(message)\u{001B}\(LogColor.reset.rawValue)"
+    }
+}
+
+private extension Cronista.Level {
+    var color: LogColor {
+        switch self {
+        case .info, .debug: .info
+        case .success: .success
+        case .warning: .warning
+        case .error, .fault: .error
+        }
     }
 }
