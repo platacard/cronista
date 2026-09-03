@@ -207,6 +207,7 @@ private extension Cronista {
             sink.write(message, level: level, module: module, category: category, terminateLine: terminateLine)
         } else {
             print(level.color.wrapped("\(message)"), terminator: terminateLine ? "\n" : " ")
+            fflush(stdout)
         }
 
         let timestamp = lineDate().ISO8601Format(
