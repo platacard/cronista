@@ -1,7 +1,7 @@
 import Foundation
 
 /// The entity to redact all known secret patterns from a log
-class LogFilter {
+class SecretRedactor {
     private var compiledPatterns: [Regex<Substring>] = []
 
     init() {
