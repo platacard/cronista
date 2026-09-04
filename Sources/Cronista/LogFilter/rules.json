@@ -876,6 +876,6 @@
     "use_ssh": "use[_-]?ssh(=| =|:| :)",
     "user_assets_access_key_id": "user[_-]?assets[_-]?access[_-]?key[_-]?id(=| =|:| :)",
     "virustotal_apikey": "virustotal[_-]?apikey(=| =|:| :)",
-    "jwt": "[A-Za-z0-9-_]+\\.[A-Za-z0-9-_]+\\.[A-Za-z0-9-_]+",
+    "jwt": "\\beyJ[A-Za-z0-9_-]+\\.eyJ[A-Za-z0-9_-]+\\.[A-Za-z0-9_-]+",
     "gitlab_token": "glpat-[A-Za-z0-9_-]*"
 }

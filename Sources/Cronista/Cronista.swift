@@ -36,7 +36,7 @@ public final class Cronista {
         case fault
     }
 
-    private let filter = LogFilter()
+    private let filter = SecretRedactor()
 
     private let module: String
     private let category: String
@@ -230,7 +230,7 @@ private extension Cronista {
 
 // MARK: Logger + Colors
 
-private enum LogColor: String {
+private enum ANSIColor: String {
     case info = "[0;34m"
     case warning = "[0;33m"
     case success = "[0;32m"
@@ -238,12 +238,12 @@ private enum LogColor: String {
     case reset = "[0;0m"
 
     func wrapped(_ message: String) -> String {
-        "\u{001B}\(self.rawValue)\(message)\u{001B}\(LogColor.reset.rawValue)"
+        "\u{001B}\(self.rawValue)\(message)\u{001B}\(ANSIColor.reset.rawValue)"
     }
 }
 
 private extension Cronista.Level {
-    var color: LogColor {
+    var color: ANSIColor {
         switch self {
         case .info, .debug: .info
         case .success: .success
